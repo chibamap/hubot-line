@@ -1,0 +1,28 @@
+{
+  "name": "hubot-line",
+  "version": "1.0.0",
+  "description": "hubot line adapter.",
+  "main": "src/line",
+  "scripts": {
+    "test": "mocha --reporter spec  --compilers coffee:coffee-script/register"
+  },
+  "keywords": [
+    "github",
+    "hubot",
+    "line",
+    "adapter"
+  ],
+  "author": "tchibana",
+  "license": "ISC",
+  "devDependencies": {
+    "coffee-script": "^1.10.0",
+    "express-test": "^0.1.2",
+    "should": "^8.3.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "express": "^4.13.4",
+    "http": "0.0.0",
+    "hubot": "^2.18.0"
+  }
+}
