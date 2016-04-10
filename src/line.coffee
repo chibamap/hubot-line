@@ -3,6 +3,7 @@
 express = require 'express'
 bodyParser = require 'body-parser'
 crypto = require 'crypto'
+url = require 'url'
 HTTP = require 'https'
 EventEmitter = require('events').EventEmitter
 
@@ -15,10 +16,12 @@ class Line extends Adapter
   constructor: (@robot)->
     super @robot
     @logger = robot.logger
+    fixieUrl = url.parse process.env.FIXIE_URL
     @options =
       channel_id:     process.env.HUBOT_LINE_CHANNEL_ID
       channel_secret: process.env.HUBOT_LINE_CHANNEL_SECRET
       mid:            process.env.HUBOT_LINE_MID
+      fixie_url: fixieUrl
       logger: @logger
 
   # send message
@@ -37,6 +40,9 @@ class Line extends Adapter
     request = HTTP.request headers, (response) ->
       unless response.statusCode == 200
         self.request_failed "Received status code #{response.statusCode}"
+      else
+        self.logger.debug 'send success'
+
     request.on "error", (e) -> self.request_failed e.message
     request.end JSON.stringify data
 
@@ -62,11 +68,12 @@ class Line extends Adapter
 
   commonHeaders: (method, path) ->
     opts =
-      host: 'trialbot-api.line.me'
+      host: @options.fixie_url.hostname
       path: path
-      port: 443
       method: method
       headers:
+        Host: 'trialbot-api.line.me'
+        "Proxy-Authorization": "Basic " + new Buffer(@options.fixie_url.auth).toString('base64'),
         'Content-Type': 'application/json; charser=UTF-8'
         'X-Line-ChannelID': @options.channel_id
         'X-Line-ChannelSecret': @options.channel_secret
