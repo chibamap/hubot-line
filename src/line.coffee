@@ -14,8 +14,8 @@ EventEmitter = require('events').EventEmitter
 
 class Line extends Adapter
   constructor: (@robot)->
-    super
-    @robot.logger.info
+    super @robot
+    @logger = robot.logger
 
   # send message
   send: (envelope, strings...) ->
@@ -26,49 +26,66 @@ class Line extends Adapter
 
   run: ->
     self = @
-    @robot.logger.info "Run"
+    @logger.info "Run"
     @emit "connected"
-    @robot.receive message
+
     @options =
-      chanel_secret: process.env.HUBOT_LINE_CHANNEL_SECRET
+      channel_secret: process.env.HUBOT_LINE_CHANNEL_SECRET
+      logger: @logger
+
     @listener = new Listener @options
 
     @listener.on 'connected', ->
       self.emit "connected"
-    @listener.on 'message', (id, content) ->
-      console.log 'received any message from stream'
+      @logger.debug "Sending connected event"
+
+    @listener.on 'message', (content) ->
+      @logger.debug 'received message ' + content.text
+      user = new User content.from, name: 'test'
+      message = new TextMessage user, content.text, content.id
+      self.receive message
 
 exports.use = (robot) ->
   new Line robot
+
+#
+# listener
+#
 
 EVENT_TYPE =
   MESSAGE: '138311609000106303'
   OPERATION: '138311609100106403'
 
 class Listener extends EventEmitter
-  constructor: (options, @robot) ->
+  constructor: (@options, @robot) ->
     self = @
+    @logger = @options.logger
     app = express()
     app.use bodyParser.json()
 
     app.post '/callback', (req, res)->
-      console.log 'received any...'
       self.callback req
       res.send 'ok'
 
     app.get '/healthcheck', (req, res) ->
       res.send 'ok'
 
-    port =  process.env.PORT || 5000
+    port = process.env.PORT || 5000
     app.use express.static(__dirname + '/public')
     app.listen port, ->
-      console.log "Node app is running at localhost:" + app.get 'port'
+      self.logger.info "Node app is running at localhost:" + port
 
   validate: (req) ->
-    # todo: validate request body here
+    hash = crypto.createHmac 'sha256', @options.channel_secret
+      .update req.body
+      .digest 'base64'
+    hmac = req.get 'X-LINE-CHANNELSIGNATURE'
+    hash is hmac
 
   callback: (req) ->
-    for i, rec of req.params.result
+    for i, rec of req.body.result
       switch rec.eventType
-        when EVENT_TYPE.MESSAGE then @emit 'message', rec.id, rec.content
-        else @emit 'operation', rec.id, rec.content
+        when EVENT_TYPE.MESSAGE
+          @emit 'message', rec.content
+        else
+          @emit 'operation', rec.content
