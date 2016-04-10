@@ -3,7 +3,7 @@
 express = require 'express'
 bodyParser = require 'body-parser'
 crypto = require 'crypto'
-HTTP = require 'http'
+HTTP = require 'https'
 EventEmitter = require('events').EventEmitter
 
 EVENT_TYPE_POST = '138311608800106203'
@@ -64,7 +64,7 @@ class Line extends Adapter
     opts =
       host: 'trialbot-api.line.me'
       path: path
-      port: 80
+      port: 443
       method: method
       headers:
         'X-Line-ChannelID': @options.channel_id
