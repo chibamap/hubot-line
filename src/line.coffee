@@ -3,10 +3,7 @@
 express = require 'express'
 bodyParser = require 'body-parser'
 crypto = require 'crypto'
-
-http = require 'http'
-
-HTTP        = require 'http'
+HTTP = require 'http'
 EventEmitter = require('events').EventEmitter
 
 EVENT_TYPE_POST = '138311608800106203'
@@ -71,7 +68,7 @@ class Line extends Adapter
       method: method
       headers:
         'X-Line-ChannelID': @options.channel_id
-        'X-Line-ChannelSecret:': @options.channel_secret
+        'X-Line-ChannelSecret': @options.channel_secret
         'X-Line-Trusted-User-With-ACL': @options.mid
 
   request_failed: (message) ->
