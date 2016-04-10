@@ -5,6 +5,18 @@ hubot line adapter
 
 draft.
 
+# set up
+
+
+heroku config:set HUBOT_HEROKU_KEEPALIVE_URL=$(heroku apps:info -s | grep web-url | cut -d= -f2)healthcheck
+
+heroku config:set HUBOT_LINE_CHANNEL_ID={your LINE channel id}
+heroku config:set HUBOT_LINE_CHANNEL_SECRET={your LINE channel secret}
+heroku config:set HUBOT_LINE_MID={your LINE mid}
+
+
+git push heroku master
+
 # test snippet
 
 curl -v -X POST \
