@@ -67,6 +67,7 @@ class Line extends Adapter
       port: 443
       method: method
       headers:
+        'Content-Type': 'application/json; charser=UTF-8'
         'X-Line-ChannelID': @options.channel_id
         'X-Line-ChannelSecret': @options.channel_secret
         'X-Line-Trusted-User-With-ACL': @options.mid
