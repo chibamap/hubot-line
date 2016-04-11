@@ -2,8 +2,8 @@
 {Robot, Adapter, TextMessage, EnterMessage, LeaveMessage, Response, User} = require 'hubot'
 url = require 'url'
 
-#Api = require './api'
-#Listener = require './listener'
+Api = require './api'
+Listener = require './listener'
 
 # Hubot Line adapter
 class Line extends Adapter
