@@ -23,7 +23,7 @@
     "bluebird": "^3.3.4",
     "https": "^1.0.0",
     "hubot": "^2.18.0",
-    "node-tunnel": "^0.2.1"
+    "tunnel": "0.0.4"
   },
   "repository": {
     "type": "git",
