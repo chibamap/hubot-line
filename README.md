@@ -14,6 +14,9 @@ heroku config:set HUBOT_LINE_CHANNEL_SECRET={your LINE channel secret}
 heroku config:set HUBOT_LINE_MID={your LINE mid}
 ```
 
+
+heroku addons:create fixie:tricycle
+
 git push heroku master
 
 # test snippet
