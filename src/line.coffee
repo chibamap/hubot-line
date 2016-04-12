@@ -29,17 +29,16 @@ class Line extends Adapter
 
   run: ->
     self = @
-    @logger.debug "adapter Run"
     @api = new Api @options
     @listener = new Listener @options
     @robot.router.all @options.endpoint, @listener.router()
 
     @listener.on 'connected', ->
       self.emit "connected"
-      @logger.debug "Sending connected event"
+
     @listener.on 'message', (content) ->
       @logger.debug 'received message ' + content.text
-      user = new User content.from, name: 'test'
+      user = new User content.from, room: 'room'
       message = new TextMessage user, content.text, content.id
       self.receive message
 
