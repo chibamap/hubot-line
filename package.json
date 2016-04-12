@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "description": "hubot line adapter.",
   "main": "src/line",
+  "engines": {
+    "node": "~0.12.2"
+  },
   "scripts": {
-    "test": "mocha --reporter spec  --compilers coffee:coffee-script/register"
+    "test": "mocha"
   },
   "keywords": [
     "github",
@@ -17,12 +20,15 @@
   "devDependencies": {
     "coffee-script": "^1.10.0",
     "express-test": "^0.1.2",
-    "should": "^8.3.0"
+    "should": "^8.3.0",
+    "supertest": "^1.2.0"
   },
   "dependencies": {
     "bluebird": "^3.3.4",
-    "https": "^1.0.0",
+    "events": "^1.1.0",
+    "express": "^4.13.4",
     "hubot": "^2.18.0",
+    "request": "^2.71.0",
     "tunnel": "0.0.4"
   },
   "repository": {
