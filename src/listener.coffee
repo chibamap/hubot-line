@@ -25,6 +25,7 @@ class Listener extends EventEmitter
             self.emit 'message', rec.content
           else
             self.logger.debug 'skip unless messsage'
+      res.send 'ok'
 
   router: ->
     @_router
