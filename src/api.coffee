@@ -36,19 +36,24 @@ module.exports = class Api
       text: text
     @send to, content
 
+  # private
+
   # send post request
   _post: (url, data) ->
     self = @
     new Promise (resolve, reject) ->
-      self._request.post url, (e, res, body) ->
+      self._request().post
+        url: url
+        body: JSON.stringify data
+        json: true
+      , (e, res, body) ->
         self.logger.info e
         unless res.statusCode == 200
           self._request_failed e, res
-          reject res
+          reject e
         else
           self.logger.debug 'send success'
           resolve res
-      req.end JSON.stringify data
 
   # send get request
   _get: (url) ->
@@ -73,8 +78,10 @@ module.exports = class Api
         'X-Line-ChannelID': @options.channel_id
         'X-Line-ChannelSecret': @options.channel_secret
         'X-Line-Trusted-User-With-ACL': @options.mid
+    req
 
   _request_failed: (e, res) ->
-    @logger.error e.message
-    @logger.error e.stack
+    if e
+      @logger.error e.message
+      @logger.error e.stack
     @logger.error "Received status code #{res.statusCode}"

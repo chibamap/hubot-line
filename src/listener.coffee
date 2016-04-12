@@ -15,6 +15,7 @@ class Listener extends EventEmitter
     @_router = express.Router()
 
     @_router.all '*', (req) ->
+      self.logger.debug req.body
       for i, rec of req.body.result
         switch rec.eventType
           when EVENT_TYPE.MESSAGE
