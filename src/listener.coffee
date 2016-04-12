@@ -1,17 +1,29 @@
-EventEmitter = require 'events' .EventEmitter
+# dependencies
+express = require 'express'
+{EventEmitter} = require "events"
 
+# defines
 EVENT_TYPE =
   MESSAGE: '138311609000106303'
   OPERATION: '138311609100106403'
 
-module.exports = class Listener extends EventEmitter
-  constructor: (@options, @robot) ->
-    self = @
+# listener
+class Listener extends EventEmitter
+  constructor: (@options) ->
     @logger = @options.logger
+    @_router = express.Router()
+    @_router.all '*', @callback
 
-    @robot.router.post @options.endpoint, (req, res) ->
-      self.callback req
-      res.send 'ok'
+  router: ->
+    @_router
+
+  callback: (req) ->
+    for i, rec of req.body.result
+      switch rec.eventType
+        when EVENT_TYPE.MESSAGE
+          @emit 'message', rec.content
+        else
+          @logger.debug 'skip unless messsage'
 
   validate: (req) ->
     hash = crypto.createHmac 'sha256', @options.channel_secret
@@ -20,10 +32,4 @@ module.exports = class Listener extends EventEmitter
     hmac = req.get 'X-LINE-CHANNELSIGNATURE'
     hash is hmac
 
-  callback: (req) ->
-    for i, rec of req.body.result
-      switch rec.eventType
-        when EVENT_TYPE.MESSAGE
-          @emit 'message', rec.content
-        else
-          @emit 'operation', rec.content
+module.exports = Listener

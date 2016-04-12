@@ -22,7 +22,7 @@ class Line extends Adapter
   send: (envelope, strings...) ->
     @logger.debug 'Send:' + JSON.stringify strings
     user = envelope.user
-    @api.sendText user.id strings
+    @api.sendText user.id, strings
 
   reply: (envelope, strings...) ->
     @robot.logger.debug "Reply" + JSON.stringify strings
@@ -31,12 +31,12 @@ class Line extends Adapter
     self = @
     @logger.debug "adapter Run"
     @api = new Api @options
-    @listener = new Listener @options, @robot
+    @listener = new Listener @options
+    @robot.router.all @options.endpoint, @listener.router()
 
     @listener.on 'connected', ->
       self.emit "connected"
       @logger.debug "Sending connected event"
-
     @listener.on 'message', (content) ->
       @logger.debug 'received message ' + content.text
       user = new User content.from, name: 'test'

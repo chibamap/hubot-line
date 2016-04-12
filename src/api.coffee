@@ -1,21 +1,21 @@
 tunnel = require 'tunnel'
-https = require 'https'
+request = require 'request'
 Promise = require 'bluebird'
 
 TO_CHANNEL = 1383378250
 EVENT_TYPE_SEND = "138311608800106203"
 CONTENT_TYPE =
   TEXT: 1
+LINEAPI_BASEURL = 'https://trialbot-api.line.me/'
 
 # Line Api
 module.exports = class Api
   constructor: (@options) ->
     @logger = @options.logger
-    @logger.debug 'api initialize:' + JSON.stringify @options
     if @options.proxy
       @tunnelAg = tunnel.httpsOverHttp
         proxy:
-          host: @options.proxy.host,
+          host: @options.proxy.host
           port: @options.proxy.url
           proxyAuth: @options.proxy.auth
 
@@ -37,49 +37,44 @@ module.exports = class Api
     @send to, content
 
   # send post request
-  _post: (path, data) ->
+  _post: (url, data) ->
     self = @
     new Promise (resolve, reject) ->
-      req = self._request('POST', path)
-      req.on 'response', (res)->
+      self._request.post url, (e, res, body) ->
+        self.logger.info e
         unless res.statusCode == 200
-          self._request_failed res
-          reject
-        else
-          self.logger.debug 'send success'
-          resolve
-      req.end JSON.stringify data
-
-  # send get request
-  _get: (path) ->
-    self = @
-    new Promise (resolve) ->
-      req = self._request 'GET', path
-      req.on 'response', (res)->
-        unless res.statusCode == 200
-          self._request_failed res
-          reject
+          self._request_failed e, res
+          reject res
         else
           self.logger.debug 'send success'
           resolve res
+      req.end JSON.stringify data
+
+  # send get request
+  _get: (url) ->
+    self = @
+    new Promise (resolve, reject) ->
+      self._request.get url, (e, res, body) ->
+        unless res.statusCode == 200
+          self._request_failed e, res
+          reject()
+        else
+          self.logger.debug 'send success'
+          resolve body
 
   # generate request object
-  _request: (method, path) ->
-    opts =
-      path: path
-      method: method
-      hostname: 'trialbot-api.line.me'
+  _request: ->
+    self = @
+    req = request.defaults
+      proxy: @options.proxy.href
+      baseUrl: LINEAPI_BASEURL
       headers:
         'Content-Type': 'application/json; charser=UTF-8'
         'X-Line-ChannelID': @options.channel_id
         'X-Line-ChannelSecret': @options.channel_secret
         'X-Line-Trusted-User-With-ACL': @options.mid
 
-    if @options.proxy
-      opts.agent = @tunnelAg
-
-    req = https.request opts
-    req.on "error", (e) -> self._request_failed e.message
-
-  _request_failed: (res) ->
+  _request_failed: (e, res) ->
+    @logger.error e.message
+    @logger.error e.stack
     @logger.error "Received status code #{res.statusCode}"
