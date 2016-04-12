@@ -10,20 +10,20 @@ EVENT_TYPE =
 # listener
 class Listener extends EventEmitter
   constructor: (@options) ->
+    self = @
     @logger = @options.logger
     @_router = express.Router()
-    @_router.all '*', @callback
+
+    @_router.all '*', (req) ->
+      for i, rec of req.body.result
+        switch rec.eventType
+          when EVENT_TYPE.MESSAGE
+            self.emit 'message', rec.content
+          else
+            self.logger.debug 'skip unless messsage'
 
   router: ->
     @_router
-
-  callback: (req) ->
-    for i, rec of req.body.result
-      switch rec.eventType
-        when EVENT_TYPE.MESSAGE
-          @emit 'message', rec.content
-        else
-          @logger.debug 'skip unless messsage'
 
   validate: (req) ->
     hash = crypto.createHmac 'sha256', @options.channel_secret
