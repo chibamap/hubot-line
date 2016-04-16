@@ -31,6 +31,7 @@ class Line extends Adapter
     @listener = new Listener @options
 
     @listener.on 'message', (content) ->
+      @logger.debug "message from: [#{content.from}]"
       user = self.robot.brain.userForId content.from, room: 'room'
       message = new TextMessage user, content.text, content.id
       self.receive message
