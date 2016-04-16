@@ -18,7 +18,6 @@ class Listener extends EventEmitter
     @_router.use bodyParser.json()
 
     @_router.post '*', (req, res) ->
-      self.logger.debug 'received:' + JSON.stringify req.body
       for i, rec of req.body.result
         switch rec.eventType
           when EVENT_TYPE.MESSAGE

@@ -28,9 +28,11 @@
     "body-parser": "^1.15.0",
     "events": "^1.1.0",
     "express": "^4.13.4",
-    "hubot": "^2.18.0",
     "request": "^2.71.0",
     "tunnel": "0.0.4"
+  },
+  "peerDependencies": {
+    "hubot": ">=2.0"
   },
   "repository": {
     "type": "git",

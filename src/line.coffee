@@ -1,5 +1,5 @@
 # Hubot dependencies
-{Robot, Adapter, TextMessage, EnterMessage, LeaveMessage, Response, User} = require 'hubot'
+{Robot, Adapter, TextMessage, Response, User} = require 'hubot'
 url = require 'url'
 
 Api = require './api'
@@ -21,26 +21,22 @@ class Line extends Adapter
   # send message
   send: (envelope, strings...) ->
     @logger.debug 'Send:' + JSON.stringify strings
+    @logger.debug 'envelope:' + JSON.stringify envelope
     user = envelope.user
-    @api.sendText user.id, strings
-
-  reply: (envelope, strings...) ->
-    @robot.logger.debug "Reply" + JSON.stringify strings
+    @api.sendText user.id, strings.shift
 
   run: ->
     self = @
     @api = new Api @options
     @listener = new Listener @options
-    @robot.router.all @options.endpoint, @listener.router()
-
-    @listener.on 'connected', ->
-      self.emit "connected"
 
     @listener.on 'message', (content) ->
-      @logger.debug 'received message ' + content.text
-      user = new User content.from, room: 'room'
+      user = self.robot.brain.userForId content.from, room: 'room'
       message = new TextMessage user, content.text, content.id
       self.receive message
+
+    @robot.router.all @options.endpoint, @listener.router()
+    @emit "connected"
 
 exports.use = (robot) ->
   new Line robot
