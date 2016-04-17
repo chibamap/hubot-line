@@ -30,6 +30,7 @@ module.exports = class Api
 
   # send text message
   sendText: (to, text) ->
+    @logger.debug "sending text: #{text}"
     content =
       contentType: CONTENT_TYPE.TEXT
       toType: 1,
@@ -42,18 +43,22 @@ module.exports = class Api
   _post: (url, data) ->
     self = @
     new Promise (resolve, reject) ->
-      self._request().post
+      opt =
         url: url
         body: JSON.stringify data
         json: true
-      , (e, res, body) ->
-        self.logger.info e
-        unless res.statusCode == 200
-          self._request_failed e, res
-          reject e
-        else
-          self.logger.debug 'send success'
-          resolve res
+
+      self._request().post(
+        opt
+        (e, res, body) ->
+          self.logger.info "error: #{e}"
+          unless res.statusCode == 200
+            self._request_failed e, res
+            reject e
+          else
+            self.logger.debug 'send success'
+            resolve res
+      )
 
   # send get request
   _get: (url) ->
@@ -82,6 +87,6 @@ module.exports = class Api
 
   _request_failed: (e, res) ->
     if e
-      @logger.error e.message
+      @logger.error "error message: #{e.message}"
       @logger.error e.stack
     @logger.error "Received status code #{res.statusCode}"

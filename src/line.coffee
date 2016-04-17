@@ -20,15 +20,13 @@ class Line extends Adapter
 
   # send message
   send: (envelope, strings...) ->
-    @logger.debug 'Send:' + JSON.stringify strings
-    @logger.debug 'envelope:' + JSON.stringify envelope
     user = envelope.user
-    @api.sendText user.id, strings.shift
+    @api.sendText user.id, strings.shift()
 
   run: ->
     self = @
     @api = new Api @options
-    @listener = new Listener @options
+    @listener = new Listener @robot, @options
 
     @listener.on 'message', (content) ->
       @logger.debug "message from: [#{content.from}]"
@@ -36,7 +34,7 @@ class Line extends Adapter
       message = new TextMessage user, content.text, content.id
       self.receive message
 
-    @robot.router.all @options.endpoint, @listener.router()
+    @listener.listen()
     @emit "connected"
 
 exports.use = (robot) ->

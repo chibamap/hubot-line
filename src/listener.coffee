@@ -11,14 +11,12 @@ EVENT_TYPE =
 
 # listener
 class Listener extends EventEmitter
-  constructor: (@options) ->
-    self = @
+  constructor: (@robot, @options) ->
     @logger = @options.logger
-    @_router = express.Router()
-    @_router.use bodyParser.json()
 
-    @_router.post '*', (req, res) ->
-      self.logger.debug JSON.stringify req.body
+  listen: ->
+    self = @
+    @robot.router.post @options.endpoint, (req, res) ->
       for i, rec of req.body.result
         switch rec.eventType
           when EVENT_TYPE.MESSAGE
@@ -26,9 +24,6 @@ class Listener extends EventEmitter
           else
             self.logger.debug 'skip unless messsage'
       res.send 'ok'
-
-  router: ->
-    @_router
 
   validate: (req) ->
     hash = crypto.createHmac 'sha256', @options.channel_secret
