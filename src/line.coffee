@@ -24,6 +24,7 @@ class Line extends Adapter
     @api.sendText user.id, strings.shift()
 
   run: ->
+    @logger.debug '-------- line run --------'
     self = @
     @api = new Api @options
     @listener = new Listener @robot, @options

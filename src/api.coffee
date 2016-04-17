@@ -51,7 +51,6 @@ module.exports = class Api
       self._request().post(
         opt
         (e, res, body) ->
-          self.logger.info "error: #{e}"
           unless res.statusCode == 200
             self._request_failed e, res
             reject e
